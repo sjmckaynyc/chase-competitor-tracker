@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Automated Competitor Dashboard</title>
+    <style>
+        :root { --chase-blue: #117aca; --chase-dark: #004b87; --bg-light: #f4f6f9; --text-dark: #1e293b; --text-muted: #64748b; --card-bg: #ffffff; --border-color: #e2e8f0; --tier-1: #ef4444; --tier-2: #f59e0b; --tier-3: #10b981; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg-light); color: var(--text-dark); display: flex; flex-direction: column; min-height: 100vh; }
+        header { background-color: var(--chase-dark); color: white; padding: 1.5rem 2.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--chase-blue); }
+        header h1 { font-size: 1.5rem; font-weight: 700; }
+        header p { font-size: 0.85rem; color: #93c5fd; margin-top: 0.25rem; }
+        .tab-navigation { background: white; border-bottom: 1px solid var(--border-color); display: flex; padding: 0 2.5rem; gap: 1rem; overflow-x: auto; }
+        .tab-btn { background: none; border: none; padding: 1.25rem 1.5rem; font-size: 0.95rem; font-weight: 600; color: var(--text-muted); cursor: pointer; position: relative; white-space: nowrap; }
+        .tab-btn.active { color: var(--chase-dark); }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background-color: var(--chase-blue); }
+        main { flex: 1; padding: 2.5rem; max-width: 1400px; width: 100%; margin: 0 auto; }
+        .tab-page { display: none; }
+        .tab-page.active { display: block; }
+        .section-intro { margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+        .intel-list { display: flex; flex-direction: column; gap: 1.5rem; }
+        .intel-card { background: var(--card-bg); border-radius: 8px; padding: 1.75rem; border: 1px solid var(--border-color); position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .priority-badge { position: absolute; top: 1.75rem; right: 1.75rem; font-size: 0.7rem; text-transform: uppercase; padding: 0.3rem 0.85rem; border-radius: 50px; color: white; font-weight: 700; }
+        .p-tier1 { background-color: var(--tier-1); }
+        .p-tier2 { background-color: var(--tier-2); }
+        .p-tier3 { background-color: var(--tier-3); }
+        .segment-tag { background-color: #f1f5f9; color: #334155; font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 700; margin-right: 0.75rem; border: 1px solid #cbd5e1; text-transform: uppercase; }
+        .tag-rise { background-color: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+        .tag-csrb { background-color: #faf5ff; color: #6b21a8; border-color: #e9d5ff; }
+        .competitor-banner { display: flex; align-items: center; max-width: 80%; margin-bottom: 0.5rem; }
+        .competitor-banner h3 { font-size: 1.25rem; color: #0f172a; }
+        .meta-line { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+        .intel-matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem; }
+        .matrix-block h4 { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; }
+        .matrix-block p { font-size: 0.95rem; color: #334155; }
+        .link-btn { display: inline-flex; align-items: center; margin-top: 1.5rem; font-size: 0.85rem; color: var(--chase-blue); text-decoration: none; font-weight: 600; }
+        .no-data-msg { padding: 3rem; text-align: center; color: var(--text-muted); background: #f8fafc; border: 1px dashed var(--border-color); border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>Competitor Strategic Intelligence Hub</h1>
+            <p>Live Agency Strategy Tracker — Monitoring Attacks on Chase Product Tiers</p>
+        </div>
+        <div class="status-pill">System Active (Auto-Updates Live)</div>
+    </header>
+
+    <div class="tab-navigation">
+        <button class="tab-btn active" onclick="switchPage(event, 'sapphire')">Sapphire Personal Targets</button>
+        <button class="tab-btn" onclick="switchPage(event, 'freedom')">Freedom Portfolio Targets</button>
+        <button class="tab-btn" onclick="switchPage(event, 'business')">Business Banking Portfolio Targets</button>
+        <button class="tab-btn" onclick="switchPage(event, 'consumer')">Consumer & Retail Deposit Targets</button>
+    </div>
+
+    <main>
+        <div id="sapphire" class="tab-page active">
+            <div class="section-intro"><h2>Premium Personal Travel Competitors</h2></div>
+            <div class="intel-list" id="sapphire-target"></div>
+        </div>
+        <div id="freedom" class="tab-page">
+            <div class="section-intro"><h2>Everyday Cash-Back & Credit-Building Competitors</h2></div>
+            <div class="intel-list" id="freedom-target"></div>
+        </div>
+        <div id="business" class="tab-page">
+            <div class="section-intro"><h2>Commercial Spend, Startup, & B2B Competitors</h2></div>
+            <div class="intel-list" id="business-target"></div>
+        </div>
+        <div id="consumer" class="tab-page">
+            <div class="section-intro"><h2>Consumer Retail Checking, Savings, & Asset Competitors</h2></div>
+            <div class="intel-list" id="consumer-target"></div>
+        </div>
+    </main>
+
+    <script>
+        function switchPage(event, targetTabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-page').forEach(page => page.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            document.getElementById(targetTabId).classList.add('active');
+        }
+
+        // Live JSON Data Insertion Frame Lookups
+        fetch('data.json')
+            .then(res => res.json())
+            .then(data => {
+                const domNodes = { sapphire: document.getElementById('sapphire-target'), freedom: document.getElementById('freedom-target'), business: document.getElementById('business-target'), consumer: document.getElementById('consumer-target') };
+                Object.values(domNodes).forEach(node => node.innerHTML = '');
+                
+                const weights = { 'Tier 1: High Impact': 1, 'Tier 2: Medium Impact': 2, 'Tier 3: Low Impact': 3 };
+                data.sort((a,b) => (weights[a.priority] || 99) - (weights[b.priority] || 99));
+
+                let tally = { sapphire: 0, freedom: 0, business: 0, consumer: 0 };
+
+                data.forEach(item => {
+                    const key = item.lob.toLowerCase();
+                    if (!domNodes[key]) return;
+                    tally[key]++;
+
+                    const badgeClass = item.priority.includes('Tier 1') ? 'p-tier1' : item.priority.includes('Tier 2') ? 'p-tier2' : 'p-tier3';
+                    let tagClass = item.subBrand.toLowerCase() === 'rise' ? 'tag-rise' : item.subBrand.toLowerCase() === 'csrb' ? 'tag-csrb' : '';
+
+                    domNodes[key].innerHTML += `
+                        <div class="intel-card">
+                            <span class="priority-badge ${badgeClass}">${item.priority.split(':')[0]}</span>
+                            <div class="competitor-banner">
+                                <span class="segment-tag ${tagClass}">Targeting: ${item.subBrand.toUpperCase()}</span>
+                                <h3>${item.competitor}: ${item.title}</h3>
+                            </div>
+                            <div class="meta-line">Log Snapshot: ${item.date} | Active Ecosystem Channels: ${item.channels}</div>
+                            <div class="intel-matrix">
+                                <div class="matrix-block"><h4>Market Action & Business Disruption</h4><p>${item.summary}</p></div>
+                                <div class="matrix-block"><h4>Advertising Dissection & Human Truth</h4><p style="font-style: italic;">${item.creative}</p></div>
+                            </div>
+                            <a href="${item.link}" target="_blank" class="link-btn">Launch Creative Asset Review Link →</a>
+                        </div>`;
+                });
+
+                Object.keys(domNodes).forEach(key => {
+                    if(tally[key] === 0) domNodes[key].innerHTML = `<div class="no-data-msg">No competitive operations logged targeting this specific portfolio landscape today.</div>`;
+                });
+            }).catch(() => {
+                document.querySelectorAll('.intel-list').forEach(n => n.innerHTML = `<div class="no-data-msg">Initializing automated engine. First data crawl will generate momentarily...</div>`);
+            });
+    </script>
+</body>
+</html>
