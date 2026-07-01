@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Automated Competitor Dashboard</title>
+    <title>Live Competitor Intelligence Hub</title>
     <style>
         :root { --chase-blue: #117aca; --chase-dark: #004b87; --bg-light: #f4f6f9; --text-dark: #1e293b; --text-muted: #64748b; --card-bg: #ffffff; --border-color: #e2e8f0; --tier-1: #ef4444; --tier-2: #f59e0b; --tier-3: #10b981; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
@@ -40,10 +40,12 @@
         .competitor-banner { display: flex; align-items: center; max-width: 75%; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.25rem; }
         .competitor-banner h3 { font-size: 1.1rem; color: #0f172a; margin-top: 0.25rem; width: 100%; }
         
-        /* Dual-Date Formatting Design Styles */
-        .meta-line { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
-        .date-pill { background: #f8fafc; border: 1px solid var(--border-color); padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 500; }
-        .date-added { color: var(--chase-blue); font-weight: 600; }
+        /* Dual-Date UI Layout */
+        .meta-dates { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.75rem; background: #f8fafc; padding: 0.5rem; border-radius: 4px; border-left: 3px solid var(--border-color); }
+        .meta-dates span { font-size: 0.75rem; color: var(--text-muted); }
+        .meta-dates b { color: #334155; }
+        .added-text b { color: var(--chase-blue); }
+        .meta-line { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; }
         
         .intel-matrix { border-top: 1px solid var(--border-color); padding-top: 1rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
         .matrix-block h4 { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem; letter-spacing: 0.5px; }
@@ -73,19 +75,19 @@
 
     <main>
         <div id="sapphire" class="tab-page active">
-            <div class="section-intro"><h2>Premium Personal Travel Competitors</h2><span class="stream-count" id="sapphire-count">0 Live Items</span></div>
+            <div class="section-intro"><h2>Premium Personal Travel Competitors</h2><span class="stream-count" id="sapphire-count">0 Items</span></div>
             <div class="intel-grid" id="sapphire-target"></div>
         </div>
         <div id="freedom" class="tab-page">
-            <div class="section-intro"><h2>Everyday Cash-Back & Credit-Building Competitors</h2><span class="stream-count" id="freedom-count">0 Live Items</span></div>
+            <div class="section-intro"><h2>Everyday Cash-Back & Credit-Building Competitors</h2><span class="stream-count" id="freedom-count">0 Items</span></div>
             <div class="intel-grid" id="freedom-target"></div>
         </div>
         <div id="business" class="tab-page">
-            <div class="section-intro"><h2>Commercial Spend, Startup, & B2B Competitors</h2><span class="stream-count" id="business-count">0 Live Items</span></div>
+            <div class="section-intro"><h2>Commercial Spend, Startup, & B2B Competitors</h2><span class="stream-count" id="business-count">0 Items</span></div>
             <div class="intel-grid" id="business-target"></div>
         </div>
         <div id="consumer" class="tab-page">
-            <div class="section-intro"><h2>Consumer Retail Checking, Savings, & Asset Competitors</h2><span class="stream-count" id="consumer-count">0 Live Items</span></div>
+            <div class="section-intro"><h2>Consumer Retail Checking, Savings, & Asset Competitors</h2><span class="stream-count" id="consumer-count">0 Items</span></div>
             <div class="intel-grid" id="consumer-target"></div>
         </div>
     </main>
@@ -106,8 +108,8 @@
                 
                 Object.values(domNodes).forEach(node => node.innerHTML = '');
                 
-                // Absolute chronological sorting: Newest release dates always render at the very top of the grid
-                data.sort((a, b) => new Date(b.released_date) - new Date(a.released_date));
+                // Sort by publication date (newest first)
+                data.sort((a, b) => new Date(b.published_date) - new Date(a.published_date));
 
                 let tally = { sapphire: 0, freedom: 0, business: 0, consumer: 0 };
 
@@ -129,26 +131,26 @@
                                     <span class="segment-tag">Targeting: ${item.subBrand.toUpperCase()}</span>
                                     <h3>${item.competitor}: ${item.title}</h3>
                                 </div>
-                                <div class="meta-line">
-                                    <span class="date-pill">Published/Released: <b>${item.released_date}</b></span>
-                                    <span class="date-pill date-added">Added to Hub: <b>${item.scraped_date}</b></span>
-                                    <span class="date-pill">Placements: ${item.channels}</span>
+                                <div class="meta-dates">
+                                    <span>Published/Released: <b>${item.published_date}</b></span>
+                                    <span class="added-text">Added to Hub: <b>${item.added_date}</b></span>
                                 </div>
+                                <div class="meta-line">Placements: ${item.channels}</div>
                                 <div class="intel-matrix">
                                     <div class="matrix-block"><h4>Market Action & Campaign Disruption</h4><p>${item.summary}</p></div>
-                                    <div class="matrix-block"><h4>AI & Media Inflation Analysis Summary</h4><p class="inflation-text">${item.creative}</p></div>
+                                    <div class="matrix-block"><h4>AI & Media Inflation Analysis</h4><p class="inflation-text">${item.creative}</p></div>
                                 </div>
                             </div>
-                            <a href="${item.link}" target="_blank" class="link-btn">${isVideo ? 'Launch Direct Video Breakdowns ➔' : 'Launch Full Source Article ➔'}</a>
+                            <a href="${item.link}" target="_blank" class="link-btn">${isVideo ? 'Launch Direct Video Broadcast ➔' : 'Launch Full Source Article ➔'}</a>
                         </div>`;
                 });
 
                 Object.keys(domNodes).forEach(key => {
-                    countNodes[key].innerText = `${tally[key]} Active Items`;
-                    if(tally[key] === 0) domNodes[key].innerHTML = `<div class="no-data-msg">No competitive operations logged targeting this portfolio landscape today.</div>`;
+                    countNodes[key].innerText = `${tally[key]} Active Insights`;
+                    if(tally[key] === 0) domNodes[key].innerHTML = `<div class="no-data-msg">No competitive operations logged targeting this portfolio today.</div>`;
                 });
             }).catch(() => {
-                document.querySelectorAll('.intel-grid').forEach(n => n.innerHTML = `<div class="no-data-msg">Initializing automated network loops...</div>`);
+                document.querySelectorAll('.intel-grid').forEach(n => n.innerHTML = `<div class="no-data-msg">Initializing intelligence engine...</div>`);
             });
     </script>
 </body>
