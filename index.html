@@ -18,9 +18,9 @@
         main { flex: 1; padding: 2rem; max-width: 1600px; width: 100%; margin: 0 auto; }
         .tab-page { display: none; }
         .tab-page.active { display: block; }
-        .section-intro { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
+        .section-intro { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; }
+        .stream-count { font-size: 0.85rem; color: var(--text-muted); background: #e2e8f0; padding: 0.25rem 0.75rem; border-radius: 50px; font-weight: 600; }
         
-        /* High-Density Google News Style Grid Layout Grid System */
         .intel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 1.5rem; }
         @media (max-width: 500px) { .intel-grid { grid-template-columns: 1fr; } }
         
@@ -39,7 +39,11 @@
         
         .competitor-banner { display: flex; align-items: center; max-width: 75%; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.25rem; }
         .competitor-banner h3 { font-size: 1.1rem; color: #0f172a; margin-top: 0.25rem; width: 100%; }
-        .meta-line { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; }
+        
+        /* Dual-Date Formatting Design Styles */
+        .meta-line { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .date-pill { background: #f8fafc; border: 1px solid var(--border-color); padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 500; }
+        .date-added { color: var(--chase-blue); font-weight: 600; }
         
         .intel-matrix { border-top: 1px solid var(--border-color); padding-top: 1rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
         .matrix-block h4 { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem; letter-spacing: 0.5px; }
@@ -69,19 +73,19 @@
 
     <main>
         <div id="sapphire" class="tab-page active">
-            <div class="section-intro"><h2>Premium Personal Travel Competitors</h2></div>
+            <div class="section-intro"><h2>Premium Personal Travel Competitors</h2><span class="stream-count" id="sapphire-count">0 Live Items</span></div>
             <div class="intel-grid" id="sapphire-target"></div>
         </div>
         <div id="freedom" class="tab-page">
-            <div class="section-intro"><h2>Everyday Cash-Back & Credit-Building Competitors</h2></div>
+            <div class="section-intro"><h2>Everyday Cash-Back & Credit-Building Competitors</h2><span class="stream-count" id="freedom-count">0 Live Items</span></div>
             <div class="intel-grid" id="freedom-target"></div>
         </div>
         <div id="business" class="tab-page">
-            <div class="section-intro"><h2>Commercial Spend, Startup, & B2B Competitors</h2></div>
+            <div class="section-intro"><h2>Commercial Spend, Startup, & B2B Competitors</h2><span class="stream-count" id="business-count">0 Live Items</span></div>
             <div class="intel-grid" id="business-target"></div>
         </div>
         <div id="consumer" class="tab-page">
-            <div class="section-intro"><h2>Consumer Retail Checking, Savings, & Asset Competitors</h2></div>
+            <div class="section-intro"><h2>Consumer Retail Checking, Savings, & Asset Competitors</h2><span class="stream-count" id="consumer-count">0 Live Items</span></div>
             <div class="intel-grid" id="consumer-target"></div>
         </div>
     </main>
@@ -98,10 +102,12 @@
             .then(res => res.json())
             .then(data => {
                 const domNodes = { sapphire: document.getElementById('sapphire-target'), freedom: document.getElementById('freedom-target'), business: document.getElementById('business-target'), consumer: document.getElementById('consumer-target') };
+                const countNodes = { sapphire: document.getElementById('sapphire-count'), freedom: document.getElementById('freedom-count'), business: document.getElementById('business-count'), consumer: document.getElementById('consumer-count') };
+                
                 Object.values(domNodes).forEach(node => node.innerHTML = '');
                 
-                const weights = { 'Tier 1: High Impact': 1, 'Tier 2: Medium Impact': 2, 'Tier 3: Low Impact': 3 };
-                data.sort((a,b) => (weights[a.priority] || 99) - (weights[b.priority] || 99));
+                // Absolute chronological sorting: Newest release dates always render at the very top of the grid
+                data.sort((a, b) => new Date(b.released_date) - new Date(a.released_date));
 
                 let tally = { sapphire: 0, freedom: 0, business: 0, consumer: 0 };
 
@@ -111,7 +117,8 @@
                     tally[key]++;
 
                     const badgeClass = item.priority.includes('Tier 1') ? 'p-tier1' : item.priority.includes('Tier 2') ? 'p-tier2' : 'p-tier3';
-                    const formatClass = item.format.toLowerCase() === 'video' ? 'fmt-video' : 'fmt-article';
+                    const isVideo = item.format.toLowerCase() === 'video';
+                    const formatClass = isVideo ? 'fmt-video' : 'fmt-article';
 
                     domNodes[key].innerHTML += `
                         <div class="intel-card">
@@ -122,21 +129,26 @@
                                     <span class="segment-tag">Targeting: ${item.subBrand.toUpperCase()}</span>
                                     <h3>${item.competitor}: ${item.title}</h3>
                                 </div>
-                                <div class="meta-line">Logged: ${item.date} | Placements: ${item.channels}</div>
+                                <div class="meta-line">
+                                    <span class="date-pill">Published/Released: <b>${item.released_date}</b></span>
+                                    <span class="date-pill date-added">Added to Hub: <b>${item.scraped_date}</b></span>
+                                    <span class="date-pill">Placements: ${item.channels}</span>
+                                </div>
                                 <div class="intel-matrix">
                                     <div class="matrix-block"><h4>Market Action & Campaign Disruption</h4><p>${item.summary}</p></div>
-                                    <div class="matrix-block"><h4>AI & Market Inflation Metric Impact</h4><p class="inflation-text">${item.creative}</p></div>
+                                    <div class="matrix-block"><h4>AI & Media Inflation Analysis Summary</h4><p class="inflation-text">${item.creative}</p></div>
                                 </div>
                             </div>
-                            <a href="${item.link}" target="_blank" class="link-btn">Launch Source Media Asset Link →</a>
+                            <a href="${item.link}" target="_blank" class="link-btn">${isVideo ? 'Launch Direct Video Breakdowns ➔' : 'Launch Full Source Article ➔'}</a>
                         </div>`;
                 });
 
                 Object.keys(domNodes).forEach(key => {
-                    if(tally[key] === 0) domNodes[key].innerHTML = `<div class="no-data-msg">No competitive operations logged targeting this specific portfolio landscape today.</div>`;
+                    countNodes[key].innerText = `${tally[key]} Active Items`;
+                    if(tally[key] === 0) domNodes[key].innerHTML = `<div class="no-data-msg">No competitive operations logged targeting this portfolio landscape today.</div>`;
                 });
             }).catch(() => {
-                document.querySelectorAll('.intel-grid').forEach(n => n.innerHTML = `<div class="no-data-msg">Initializing automated engine...</div>`);
+                document.querySelectorAll('.intel-grid').forEach(n => n.innerHTML = `<div class="no-data-msg">Initializing automated network loops...</div>`);
             });
     </script>
 </body>
