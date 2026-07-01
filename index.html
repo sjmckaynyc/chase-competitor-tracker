@@ -15,34 +15,47 @@
         .tab-btn { background: none; border: none; padding: 1.25rem 1.5rem; font-size: 0.95rem; font-weight: 600; color: var(--text-muted); cursor: pointer; position: relative; white-space: nowrap; }
         .tab-btn.active { color: var(--chase-dark); }
         .tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background-color: var(--chase-blue); }
-        main { flex: 1; padding: 2.5rem; max-width: 1400px; width: 100%; margin: 0 auto; }
+        main { flex: 1; padding: 2rem; max-width: 1600px; width: 100%; margin: 0 auto; }
         .tab-page { display: none; }
         .tab-page.active { display: block; }
-        .section-intro { margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
-        .intel-list { display: flex; flex-direction: column; gap: 1.5rem; }
-        .intel-card { background: var(--card-bg); border-radius: 8px; padding: 1.75rem; border: 1px solid var(--border-color); position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .priority-badge { position: absolute; top: 1.75rem; right: 1.75rem; font-size: 0.7rem; text-transform: uppercase; padding: 0.3rem 0.85rem; border-radius: 50px; color: white; font-weight: 700; }
+        .section-intro { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
+        
+        /* High-Density Google News Style Grid Layout Grid System */
+        .intel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 1.5rem; }
+        @media (max-width: 500px) { .intel-grid { grid-template-columns: 1fr; } }
+        
+        .intel-card { background: var(--card-bg); border-radius: 8px; padding: 1.25rem; border: 1px solid var(--border-color); position: relative; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: transform 0.2s; }
+        .intel-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        
+        .priority-badge { position: absolute; top: 1.25rem; right: 1.25rem; font-size: 0.65rem; text-transform: uppercase; padding: 0.25rem 0.65rem; border-radius: 50px; color: white; font-weight: 700; }
         .p-tier1 { background-color: var(--tier-1); }
         .p-tier2 { background-color: var(--tier-2); }
         .p-tier3 { background-color: var(--tier-3); }
-        .segment-tag { background-color: #f1f5f9; color: #334155; font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 700; margin-right: 0.75rem; border: 1px solid #cbd5e1; text-transform: uppercase; }
-        .tag-rise { background-color: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
-        .tag-csrb { background-color: #faf5ff; color: #6b21a8; border-color: #e9d5ff; }
-        .competitor-banner { display: flex; align-items: center; max-width: 80%; margin-bottom: 0.5rem; }
-        .competitor-banner h3 { font-size: 1.25rem; color: #0f172a; }
-        .meta-line { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; }
-        .intel-matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem; }
-        .matrix-block h4 { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; }
-        .matrix-block p { font-size: 0.95rem; color: #334155; }
-        .link-btn { display: inline-flex; align-items: center; margin-top: 1.5rem; font-size: 0.85rem; color: var(--chase-blue); text-decoration: none; font-weight: 600; }
-        .no-data-msg { padding: 3rem; text-align: center; color: var(--text-muted); background: #f8fafc; border: 1px dashed var(--border-color); border-radius: 6px; }
+        
+        .segment-tag { background-color: #f1f5f9; color: #334155; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700; margin-right: 0.5rem; text-transform: uppercase; border: 1px solid #cbd5e1; }
+        .media-format-tag { font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700; text-transform: uppercase; margin-right: 0.5rem; }
+        .fmt-video { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .fmt-article { background-color: #e0f2fe; color: #075985; border: 1px solid #7dd3fc; }
+        
+        .competitor-banner { display: flex; align-items: center; max-width: 75%; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.25rem; }
+        .competitor-banner h3 { font-size: 1.1rem; color: #0f172a; margin-top: 0.25rem; width: 100%; }
+        .meta-line { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; }
+        
+        .intel-matrix { border-top: 1px solid var(--border-color); padding-top: 1rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+        .matrix-block h4 { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem; letter-spacing: 0.5px; }
+        .matrix-block p { font-size: 0.85rem; color: #334155; line-height: 1.4; }
+        .matrix-block p.inflation-text { background-color: #fafafa; border-left: 3px solid var(--chase-blue); padding-left: 0.5rem; font-style: italic; color: #475569; }
+        
+        .link-btn { display: inline-flex; align-items: center; font-size: 0.8rem; color: var(--chase-blue); text-decoration: none; font-weight: 600; margin-top: auto; }
+        .link-btn:hover { text-decoration: underline; }
+        .no-data-msg { padding: 3rem; text-align: center; color: var(--text-muted); background: #f8fafc; border: 1px dashed var(--border-color); grid-column: 1 / -1; }
     </style>
 </head>
 <body>
     <header>
         <div>
             <h1>Competitor Strategic Intelligence Hub</h1>
-            <p>Live Agency Strategy Tracker — Monitoring Attacks on Chase Product Tiers</p>
+            <p>Live Agency Strategy Tracker — High Density Intelligence Streams</p>
         </div>
         <div class="status-pill">System Active (Auto-Updates Live)</div>
     </header>
@@ -57,19 +70,19 @@
     <main>
         <div id="sapphire" class="tab-page active">
             <div class="section-intro"><h2>Premium Personal Travel Competitors</h2></div>
-            <div class="intel-list" id="sapphire-target"></div>
+            <div class="intel-grid" id="sapphire-target"></div>
         </div>
         <div id="freedom" class="tab-page">
             <div class="section-intro"><h2>Everyday Cash-Back & Credit-Building Competitors</h2></div>
-            <div class="intel-list" id="freedom-target"></div>
+            <div class="intel-grid" id="freedom-target"></div>
         </div>
         <div id="business" class="tab-page">
             <div class="section-intro"><h2>Commercial Spend, Startup, & B2B Competitors</h2></div>
-            <div class="intel-list" id="business-target"></div>
+            <div class="intel-grid" id="business-target"></div>
         </div>
         <div id="consumer" class="tab-page">
             <div class="section-intro"><h2>Consumer Retail Checking, Savings, & Asset Competitors</h2></div>
-            <div class="intel-list" id="consumer-target"></div>
+            <div class="intel-grid" id="consumer-target"></div>
         </div>
     </main>
 
@@ -81,7 +94,6 @@
             document.getElementById(targetTabId).classList.add('active');
         }
 
-        // Live JSON Data Insertion Frame Lookups
         fetch('data.json')
             .then(res => res.json())
             .then(data => {
@@ -99,21 +111,24 @@
                     tally[key]++;
 
                     const badgeClass = item.priority.includes('Tier 1') ? 'p-tier1' : item.priority.includes('Tier 2') ? 'p-tier2' : 'p-tier3';
-                    let tagClass = item.subBrand.toLowerCase() === 'rise' ? 'tag-rise' : item.subBrand.toLowerCase() === 'csrb' ? 'tag-csrb' : '';
+                    const formatClass = item.format.toLowerCase() === 'video' ? 'fmt-video' : 'fmt-article';
 
                     domNodes[key].innerHTML += `
                         <div class="intel-card">
-                            <span class="priority-badge ${badgeClass}">${item.priority.split(':')[0]}</span>
-                            <div class="competitor-banner">
-                                <span class="segment-tag ${tagClass}">Targeting: ${item.subBrand.toUpperCase()}</span>
-                                <h3>${item.competitor}: ${item.title}</h3>
+                            <div>
+                                <span class="priority-badge ${badgeClass}">${item.priority.split(':')[0]}</span>
+                                <div class="competitor-banner">
+                                    <span class="media-format-tag ${formatClass}">${item.format}</span>
+                                    <span class="segment-tag">Targeting: ${item.subBrand.toUpperCase()}</span>
+                                    <h3>${item.competitor}: ${item.title}</h3>
+                                </div>
+                                <div class="meta-line">Logged: ${item.date} | Placements: ${item.channels}</div>
+                                <div class="intel-matrix">
+                                    <div class="matrix-block"><h4>Market Action & Campaign Disruption</h4><p>${item.summary}</p></div>
+                                    <div class="matrix-block"><h4>AI & Market Inflation Metric Impact</h4><p class="inflation-text">${item.creative}</p></div>
+                                </div>
                             </div>
-                            <div class="meta-line">Log Snapshot: ${item.date} | Active Ecosystem Channels: ${item.channels}</div>
-                            <div class="intel-matrix">
-                                <div class="matrix-block"><h4>Market Action & Business Disruption</h4><p>${item.summary}</p></div>
-                                <div class="matrix-block"><h4>Advertising Dissection & Human Truth</h4><p style="font-style: italic;">${item.creative}</p></div>
-                            </div>
-                            <a href="${item.link}" target="_blank" class="link-btn">Launch Creative Asset Review Link →</a>
+                            <a href="${item.link}" target="_blank" class="link-btn">Launch Source Media Asset Link →</a>
                         </div>`;
                 });
 
@@ -121,7 +136,7 @@
                     if(tally[key] === 0) domNodes[key].innerHTML = `<div class="no-data-msg">No competitive operations logged targeting this specific portfolio landscape today.</div>`;
                 });
             }).catch(() => {
-                document.querySelectorAll('.intel-list').forEach(n => n.innerHTML = `<div class="no-data-msg">Initializing automated engine. First data crawl will generate momentarily...</div>`);
+                document.querySelectorAll('.intel-grid').forEach(n => n.innerHTML = `<div class="no-data-msg">Initializing automated engine...</div>`);
             });
     </script>
 </body>
