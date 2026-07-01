@@ -1,112 +1,106 @@
 import os
 import json
+import re
+import requests
 from datetime import datetime
+
+GEMINI_KEY = os.environ.get('GEMINI_API_KEY')
+
+# Live industry trade RSS links converting raw articles and commercial trackers into clean JSON data strings
+feed_urls = [
+    "https://www.adweek.com/feed/",
+    "https://www.campaignlive.com/rss/news",
+    "https://www.marketingweek.com/feed/"
+]
 
 collected_intel = []
 
-# High-density diversified media asset grid blending trade journalism and live commercial spots
-high_density_news_vault = [
-    {
-        "lob": "Sapphire",
-        "subBrand": "Reserve",
-        "format": "Video",
-        "priority": "Tier 1: High Impact",
-        "competitor": "American Express Platinum",
-        "title": "Exclusive Fine Dining & Resy Priority Notify Commercial",
-        "channels": "YouTube, Premium CTV, Instagram Reels",
-        "summary": "Amex launches a massive lifestyle video spot campaign highlighting Resy Priority Notify privileges and exclusive restaurant seating footprints to capture ultra-premium accounts.",
-        "creative": "AI & Media Inflation Analysis: As luxury algorithmic search optimization hyper-saturates standard programmatic channels, customer acquisition costs have surged 18%. Amex is dodging ad-network bids completely by using direct, value-locked app ecosystems as an un-copyable retention device.",
-        "link": "https://www.youtube.com/watch?v=11spbSgfcc0"
-    },
-    {
-        "lob": "Sapphire",
-        "subBrand": "Preferred",
-        "format": "Video",
-        "priority": "Tier 2: Medium Impact",
-        "competitor": "American Express Platinum",
-        "title": "Fine Hotels & Resorts Luxury Travel Feature Spot",
-        "channels": "YouTube Pre-Roll, Roku Network, Digital OOH",
-        "summary": "Amex deploys highly cinematic video asset sequences breaking down late checkouts and complimentary breakfast benefits across its global partner hospitality network.",
-        "creative": "AI & Media Inflation Analysis: Premium video placement inflation has driven linear CPM rates up 12% this quarter. Amex is counter-acting this weight by using generative asset assembly tools to spit out thousands of geo-targeted micro-variations, optimizing dynamic creative performance in real-time.",
-        "link": "https://www.youtube.com/watch?v=kZ1IZwpCvn4"
-    },
-    {
-        "lob": "Freedom",
-        "subBrand": "Unlimited",
-        "format": "Video",
-        "priority": "Tier 1: High Impact",
-        "competitor": "Capital One Saver Card",
-        "title": "Caitlin Clark March Madness Entertainment Commercial",
-        "channels": "YouTube Broadcast, TikTok, Broadcast Sports",
-        "summary": "Capital One floods live sports broadcasts with a massive, high-budget multi-celeb campaign pushing flat 3% cash back advantages across mainstream dining and entertainment verticals.",
-        "creative": "AI & Media Inflation Analysis: Premium live sports commercial rates are experiencing massive price inflation. Capital One is justifying the massive upfront media investment by aggressively chopping up the master video into short-form TikTok templates, leaning on creator network amplification to drive cost-per-view metrics down to fractions of a cent.",
-        "link": "https://www.youtube.com/watch?v=eEMpEfeZnh4"
-    },
-    {
-        "lob": "Business",
-        "subBrand": "CSRB",
-        "format": "Video",
-        "priority": "Tier 1: High Impact",
-        "competitor": "Capital One Venture X Business",
-        "title": "'Going the Distance' Commercial Founder Testimonial",
-        "channels": "YouTube, LinkedIn Native Display, B2B Podcasting",
-        "summary": "Capital One showcases documentary-style corporate builder videos highlighting uncapped purchasing power minimums and double reward point accrual metrics on high-scale operational outlays.",
-        "creative": "AI & Media Inflation Analysis: B2B programmatic LinkedIn media costs have inflated drastically due to competitive AI-driven automated bidding bidding wars. Capital One is bypassing ad-fatigue by using zero-script human testimonials to rank higher in organic visibility formats.",
-        "link": "https://www.youtube.com/watch?v=nxQZJb3_B3s"
-    },
-    {
-        "lob": "Consumer",
-        "subBrand": "Checking/Savings",
-        "format": "Video",
-        "priority": "Tier 2: Medium Impact",
-        "competitor": "Capital One Retail",
-        "title": "'No Fees' Physical Banking Café Integration Spot",
-        "channels": "YouTube Premium, Targeted Mobile Networks, CTV",
-        "summary": "Capital One pushes zero-minimum digital checkings while utilizing stylized video ads to frame their physical lifestyle coffee spaces as community hubs.",
-        "creative": "AI & Media Inflation Analysis: Digital keyword search inflation for terms like 'No Fee Savings' has hit record highs. Capital One's campaign shifts conversion weight to physical hybrid properties, using local community footprints to organically gather accounts without paying premium ad-words tax.",
-        "link": "https://www.youtube.com/watch?v=psk9qEh-lqM"
-    },
-    {
-        "lob": "Business",
-        "subBrand": "Ink",
-        "format": "Article",
-        "priority": "Tier 2: Medium Impact",
-        "competitor": "Ramp Corporate Platforms",
-        "title": "Adweek Analysis: The War on Manual Expense Administrative Overhead",
-        "channels": "Adweek Business News, Tech Newsletters",
-        "summary": "A deep-dive campaign review breaking down how alternative fintech players are weaponizing platform workflows to frame traditional bank accounts as clunky operational friction.",
-        "creative": "AI & Media Inflation Analysis: Generative AI text bots have saturated commercial blogs, driving down the conversion efficiency of standard text content. Modern campaigns are forced to win on distinct, workflow-integrated utility solutions over simple keyword messaging architectures.",
-        "link": "https://www.adweek.com"
-    },
-    {
-        "lob": "Freedom",
-        "subBrand": "Rise",
-        "format": "Article",
-        "priority": "Tier 1: High Impact",
-        "competitor": "Discover Student Credit",
-        "title": "Ad Age Feature: Discover Intercepts the Next Generation of Account Holders",
-        "channels": "Ad Age Interactive, Campus Digital Network Loops",
-        "summary": "An analytical trade profile tracking Discover's high-frequency campus onboarding programs designed to lock in student loyalty before credit builders graduate.",
-        "creative": "AI & Media Inflation Analysis: Gen-Z ad blocking behavior has inflated standard display desktop banner costs to ineffective limits. Brands are forced to utilize programmatic offline campus networks and peer-to-peer influencer loops to maintain baseline audience reach.",
-        "link": "https://www.adage.com"
-    },
-    {
-        "lob": "Freedom",
-        "subBrand": "Flex",
-        "format": "Article",
-        "priority": "Tier 3: Low Impact",
-        "competitor": "Citi Double Cash",
-        "title": "Campaign Live: Citi Attacks Rotating Points Fatigue",
-        "channels": "Campaign Live News, Spotify Audio Network",
-        "summary": "Citi runs a widespread digital press push positioning their flat 2% cash back structure as a clean relief to the cognitive load of changing seasonal categories.",
-        "creative": "AI & Media Inflation Analysis: Attention inflation spans are shortening, rendering complex points-mechanisms dead on arrival in short-form digital spaces. Creative execution is trending toward extreme over-simplification to survive sub-second content feeds.",
-        "link": "https://www.campaignlive.com"
-    }
-]
+# Fetch live items across the trade grid
+for url in feed_urls:
+    try:
+        response = requests.get(url, timeout=10)
+        # Using regex pattern match mapping to quickly isolate feed rows without adding clunky dependencies
+        items = re.findall(r'<item>(.*?)</item>', response.text, re.DOTALL)
+    except:
+        items = []
 
-for block in high_density_news_vault:
-    block['date'] = datetime.today().strftime('%b %d, %Y')
+    for item in items:
+        if len(collected_intel) >= 25:  # High-density cap to match Google News page density constraints
+            break
+            
+        title_match = re.search(r'<title>(.*?)</title>', item)
+        link_match = re.search(r'<link>(.*?)</link>', item)
+        desc_match = re.search(r'<description>(.*?)</description>', item)
+        
+        headline = title_match.group(1).replace('<![CDATA[', '').replace(']]>', '') if title_match else ""
+        source_url = link_match.group(1).replace('<![CDATA[', '').replace(']]>', '') if link_match else "https://www.adweek.com"
+        description = desc_match.group(1).replace('<![CDATA[', '').replace(']]>', '') if desc_match else ""
+        
+        # Clean HTML tag remnants out of the raw RSS stream strings
+        description = re.sub(r'<[^>]*>', '', description).strip()
+        
+        if not headline or len(headline) < 10:
+            continue
 
-with open('data.json', 'w', encoding='utf-8') as f:
-    json.dump(high_density_news_vault, f, indent=2)
-print("Google News style high-density data matrix compiled.")
+        # Master AI parsing logic parsing live elements into the core layout metrics
+        prompt_instruction = f"""
+        Analyze this live financial services marketing trade item:
+        Headline: {headline}
+        Description: {description}
+
+        Based on the text content, match it to one of these major banking sectors:
+        - If it mentions luxury, travel, premium lifestyle, dining, Amex Platinum, or high-end travel cards, set lob to "Sapphire".
+        - If it mentions everyday cash-back, students, credit builders, Capital One Savor, or everyday cards, set lob to "Freedom".
+        - If it mentions startups, corporate spend, B2B, Ramp, small business, or enterprise infrastructure, set lob to "Business".
+        - If it mentions retail banking, checking accounts, deposits, high-yield savings, branch footprints, or consumer wealth, set lob to "Consumer".
+        
+        If it doesn't fit any cleanly, intelligently distribute it based on demographic reach. Select the targeted subBrand segment tag (e.g., Reserve, Preferred, Unlimited, Flex, Rise, Ink, CSRB, Business Checking, Checking/Savings, Private Client).
+        Set the media format as "Video" if it mentions a commercial, TV spot, video drop, or film, otherwise set it as "Article".
+        Rate its priority strictly as: "Tier 1: High Impact", "Tier 2: Medium Impact", or "Tier 3: Low Impact".
+
+        Provide an "AI & Media Inflation Analysis Summary". This block must discuss how this specific competitor move forces shifting Customer Acquisition Costs (CAC), programmatic ad bidding inflation, automated platform delivery dynamics, or macro attention span decay.
+
+        Respond ONLY with a valid JSON block matching this structure, without markdown wraps, backticks, or prose:
+        {{
+          "lob": "Sapphire or Freedom or Business or Consumer",
+          "subBrand": "segment tag",
+          "format": "Video or Article",
+          "priority": "Tier rating classification string",
+          "competitor": "Identify the core competing financial brand or app name mentioned",
+          "title": "short clear title summarizing the action",
+          "channels": "estimated ad media placement placements used",
+          "summary": "2-3 sentence overview of what the competitor is doing business-wise.",
+          "creative": "The complete AI & Media Inflation Analysis Summary."
+        }}
+        """
+        
+        gemini_endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_KEY}"
+        payload = {"contents": [{"parts": [{"text": prompt_instruction}]}]}
+        
+        try:
+            res = requests.post(gemini_endpoint, json=payload, timeout=12).json()
+            ai_raw_output = res['candidates'][0]['content']['parts'][0]['text'].strip()
+            
+            if "```json" in ai_raw_output:
+                ai_raw_output = ai_raw_output.split("```json")[1].split("```")[0].strip()
+            elif "```" in ai_raw_output:
+                ai_raw_output = ai_raw_output.split("```")[1].split("```")[0].strip()
+                
+            data_block = json.loads(ai_raw_output)
+            data_block['date'] = datetime.today().strftime('%b %d, %Y')
+            
+            # If the entry mentions video format, map it straight to an active video link container
+            if data_block['format'] == "Video" and "youtube" not in source_url:
+                data_block['link'] = "https://www.youtube.com/results?search_query=" + requests.utils.quote(data_block['competitor'] + " " + data_block['title'])
+            else:
+                data_block['link'] = source_url
+                
+            collected_intel.append(data_block)
+        except:
+            continue
+
+# Overwrite database with the real-time high-density news cluster tracking array
+if collected_intel:
+    with open('data.json', 'w', encoding='utf-8') as f:
+        json.dump(collected_intel, f, indent=2)
+    print(f"Successfully processed {len(collected_intel)} real-time high density campaign entries.")
